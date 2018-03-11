@@ -7,6 +7,7 @@
 #include <fstream>
 #include <vector>
 #include <mutex>
+#include <cstring>
 using namespace std;
 using namespace std::literals::string_literals;
 
@@ -62,30 +63,47 @@ vector<string> split(const string &s, char delim)
 
 int main(int argc, char** argv)
 {
-    size_t addrcount = argc - 2;
-    string dest = argv[1];
-    vector<string> addresses; for(int a = 2;a<argc;a++) addresses.push_back(argv[a]);
+    int addrcount;
+    vector<string> addresses;
     vector<string> filenames;
     vector<thread> downloaders;
     atomic<size_t> total {0};
 
-    for (size_t addr = 0; addr < addrcount; addr++) {
+
+    if (strcmp(argv[1], "-f") == 0)
+    {
+        ifstream addrfile(argv[2]);
+        string aline;
+        while (getline(addrfile, aline))
+        {
+            addrcount++;
+            addresses.push_back(aline);
+        }
+        addrfile.close();
+    }
+    else
+    {
+        addrcount = argc - 1;
+        for(int a = 1;a<argc;a++) addresses.push_back(argv[a]);
+    }
+
+    for (int addr = 0; addr < addrcount; addr++)
+    {
         vector<string> chopped_url = split(addresses.at(addr), '/');
         filenames.push_back(chopped_url.back());
     }
 
 
+
     cURLpp::initialize();
     unsigned line = 1;
-    int proc = 0;
 
-
-    for(const auto& address: addresses)
+    for(int addr = 0; addr < addrcount; addr++)
     {
-        downloaders.emplace_back([address, l=line++, &total, &dest, &filenames, &proc]
+
+        downloaders.emplace_back([address=addresses.at(addr), l=line++, &total, &filenames, addr]
         {
-            total += Download(address, dest+"/"+filenames.at(proc), l);
-            proc++;
+            total += Download(address, filenames.at(addr), l);
         });
     }
 
