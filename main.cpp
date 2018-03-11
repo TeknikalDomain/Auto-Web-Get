@@ -62,30 +62,34 @@ vector<string> split(const string &s, char delim)
 
 int main(int argc, char** argv)
 {
-    int addrcount = argc - 2;
+    size_t addrcount = argc - 2;
     string dest = argv[1];
     vector<string> addresses; for(int a = 2;a<argc;a++) addresses.push_back(argv[a]);
     vector<string> filenames;
     vector<thread> downloaders;
     atomic<size_t> total {0};
 
-    for (size_t addr = 0; addr < addresses::size(); addr++) {
+    for (size_t addr = 0; addr < addrcount; addr++) {
         vector<string> chopped_url = split(addresses.at(addr), '/');
-        filenames.push_back(chopped_url.back);
+        filenames.push_back(chopped_url.back());
     }
+
 
     cURLpp::initialize();
     unsigned line = 1;
+    int proc = 0;
+
 
     for(const auto& address: addresses)
     {
-        downloaders.emplace_back([address, l=line++, &total, &dest, &filenames, line]
+        downloaders.emplace_back([address, l=line++, &total, &dest, &filenames, &proc]
         {
-            total += Download(address, dest+filenames.at(line-1), l);
+            total += Download(address, dest+"/"+filenames.at(proc), l);
+            proc++;
         });
     }
 
     for (auto& dl: downloaders) dl.join();
 
-    cout << Line(line) << to_string(total) << "bytes received." << endl;
+    cout << Line(line) << to_string(total) << " bytes received." << endl;
 }
