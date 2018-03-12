@@ -8,6 +8,7 @@
 #include <vector>
 #include <mutex>
 #include <cstring>
+#include <chrono>
 using namespace std;
 using namespace std::literals::string_literals;
 
@@ -63,7 +64,20 @@ vector<string> split(const string &s, char delim)
 
 int main(int argc, char** argv)
 {
-    int addrcount;
+    if (argc == 1)
+    {
+        cerr << "Error: No addresses provided." << endl;
+        cout << "Usage: awg (<address>...|-f <file>)" << endl;
+        return 1;
+    }
+
+    if (strcmp(argv[1], "-?") || strcmp(argv[1], "--help"))
+    {
+        cout << "Usage: awg (<address>...|-f <file>)" << endl;
+        return 1;
+    }
+
+    int addrcount = 0;
     vector<string> addresses;
     vector<string> filenames;
     vector<thread> downloaders;
@@ -72,6 +86,11 @@ int main(int argc, char** argv)
 
     if (strcmp(argv[1], "-f") == 0)
     {
+        if (argc == 2)
+        {
+            cerr << "Error: No file specified." << endl;
+            return 1;
+        }
         ifstream addrfile(argv[2]);
         string aline;
         while (getline(addrfile, aline))
@@ -98,6 +117,9 @@ int main(int argc, char** argv)
     cURLpp::initialize();
     unsigned line = 1;
 
+    cout << "Downloading " << addrcount << " files..." << endl << endl;
+
+    auto start = chrono::steady_clock::now();
     for(int addr = 0; addr < addrcount; addr++)
     {
 
@@ -109,5 +131,8 @@ int main(int argc, char** argv)
 
     for (auto& dl: downloaders) dl.join();
 
-    cout << Line(line) << to_string(total) << " bytes received." << endl;
+    auto duration = chrono::steady_clock::now() - start;
+    cout << Line(line) << to_string(total) << " bytes received, " << duration.count() << " seconds." << endl;
+    cout << "Average: " << to_string(total / addrcount) << " bytes per file." << endl;
+    cout << "Average speed: " << total / duration.count() << "bytes per second." << endl;
 }
