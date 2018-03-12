@@ -71,7 +71,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    if (strcmp(argv[1], "-?") || strcmp(argv[1], "--help"))
+    if (strcmp(argv[1], "-?") == 0 || strcmp(argv[1], "--help") == 0)
     {
         cout << "Usage: awg (<address>...|-f <file>)" << endl;
         return 1;
