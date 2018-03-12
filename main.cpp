@@ -8,7 +8,7 @@
 #include <vector>
 #include <mutex>
 #include <cstring>
-#include <chrono>
+#include <ctime>
 using namespace std;
 using namespace std::literals::string_literals;
 
@@ -71,7 +71,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    if (strcmp(argv[1], "-?") || strcmp(argv[1], "--help"))
+    if (strcmp(argv[1], "-?") == 0 || strcmp(argv[1], "--help") == 0)
     {
         cout << "Usage: awg (<address>...|-f <file>)" << endl;
         return 1;
@@ -119,7 +119,7 @@ int main(int argc, char** argv)
 
     cout << "Downloading " << addrcount << " files..." << endl << endl;
 
-    auto start = chrono::steady_clock::now();
+    time_t start = time(NULL);
     for(int addr = 0; addr < addrcount; addr++)
     {
 
@@ -131,8 +131,8 @@ int main(int argc, char** argv)
 
     for (auto& dl: downloaders) dl.join();
 
-    auto duration = chrono::steady_clock::now() - start;
-    cout << Line(line) << to_string(total) << " bytes received, " << duration.count() << " seconds." << endl;
+    time_t duration = time(NULL) - start;
+    cout << Line(line) << to_string(total) << " bytes received, " << duration << " seconds." << endl;
     cout << "Average: " << to_string(total / addrcount) << " bytes per file." << endl;
-    cout << "Average speed: " << total / duration.count() << "bytes per second." << endl;
+    cout << "Average speed: " << total / duration << " bytes per second." << endl;
 }
