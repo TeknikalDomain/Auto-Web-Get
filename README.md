@@ -2,7 +2,7 @@
 Also known as massively parallelized curl
 Because downloading files manually was too hard.
 
-Usage: `awg (<address list>|-f <file>)`
+Usage: `awg <address list>` or `awg -f <file>`
 where `file` is a list of URLs, one per line
 
 awg will launch one thread per file to download as many as possible in parallel.

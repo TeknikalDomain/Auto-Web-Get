@@ -1,0 +1,20 @@
+.TH AWG 1 "12 March 2018" "version 1.2"
+.SH NAME
+awg \- Auto Web Get: parallelized curl
+.SH SYNOPSIS
+.IX
+\fBawg\fI address\fR ...
+
+\fBawg \-f\fI file
+.SH DESCRIPTION
+\fBawg\fR will spawn individual curl threads for each
+URL specified, parallelizing web file downloads.
+A list of URLs can be specified on the command line,
+or a file containing one per line can be used with
+the \fB\-f\fR option.
+.SH OPTIONS
+.TP
+\fIaddress\fP is a web URL pointing to a file to be downloaded.
+.TP
+\fB\-f \fIfile\fP
+Use \fIfile\fP for the list of URLs instead of the command line.
